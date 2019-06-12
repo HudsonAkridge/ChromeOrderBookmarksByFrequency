@@ -1,0 +1,14 @@
+{
+    "manifest_version": 2,
+    "name": "Order Bookmarks By Frequency",
+    "version": "0.1",
+    "permissions": [
+        "bookmarks",
+        "tabs",
+        "webNavigation"
+      ],
+    "background":{
+        "scripts": ["background.js"],
+        "persistent":false
+    }
+  }
