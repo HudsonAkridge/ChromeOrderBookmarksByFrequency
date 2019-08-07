@@ -81,21 +81,38 @@ const onNavigationCompleted = async details => {
 
     //Get siblings
     let siblingResults = await chrome.bookmarks.getChildren(bookmarkEntry.parentId);
-    //Add Bookmark Ranks to each sibling found
-    for (i = 0; i < siblingResults.length; i++) {
-      let sibling = siblingResults[i];
-
-      let siblingBmrKey = convertUrlToKey(sibling.url);
-      let siblingKeyQuery = `${siblingBmrKey}`;
-      sibling.bmrKey = siblingKeyQuery;
-
-      let siblingBmrEntry = await chrome.storage.local.get(siblingKeyQuery);
-      let entryWeight = siblingBmrEntry[siblingBmrKey] || 1;
-      sibling.weight = entryWeight;
-    }
-
-    await recursiveSortBookmarks(siblingResults);
+    await recursiveWeightBookmarks(siblingResults);
   });
+};
+
+const recursiveWeightBookmarks = async bookmarksInCurrentFolder => {
+  let totalCountInFolder = 0;
+  //Add Bookmark Ranks to each sibling found
+  for (i = 0; i < bookmarksInCurrentFolder.length; i++) {
+    let current = bookmarksInCurrentFolder[i];
+
+    let currentBmrKey = convertUrlToKey(current.url);
+    let currentKeyQuery = `${currentBmrKey}`;
+    current.bmrKey = currentKeyQuery;
+
+    if (!current.url) {
+      //folder, recursively call down and do for children
+      let folderResults = await chrome.bookmarks.getChildren(current.id);
+      if (folderResults && folderResults.length > 0) {
+        console.log(folderResults);
+        let subFolderWeight = 0;//(await recursiveWeightBookmarks(folderResults)) || 0;
+        console.log(subFolderWeight);
+        current.weight = subFolderWeight;
+      }
+    } else {
+      let currentBmrEntry = await chrome.storage.local.get(currentKeyQuery);
+      let entryWeight = currentBmrEntry[currentBmrKey] || 1;
+      current.weight = entryWeight;
+      totalCountInFolder += entryWeight;
+    }
+  }
+  await recursiveSortBookmarks(bookmarksInCurrentFolder);
+  return totalCountInFolder;
 };
 
 const recursiveSortBookmarks = async bookmarksInCurrentFolder => {
