@@ -9,7 +9,10 @@
         "storage"
       ],
     "background":{
-        "scripts": ["background.js"],
+        "scripts": [
+          "lib/chrome-extension-async.js",
+          "background.js"
+        ],
         "persistent":false
     }
   }

@@ -11,42 +11,47 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
-chrome.webNavigation.onCompleted.addListener(function(details) {
-  if (details.frameId === 0) {
-    //console.log(details.url);
-    // chrome.bookmarks.getTree(function(tree){
-    //     console.log(tree);
-    // });
-    chrome.bookmarks.search({ url: details.url }, function(results) {
-      if (results === undefined || results.length == 0) {
-        console.log("No URL hits.");
-        return;
-      }
-
-      results.forEach(function(element) {
-        const bmrEntryKey = `bmr-${element.url.hashCode()}`;
-        chrome.storage.sync.get([`${bmrEntryKey}`], items => {
-          console.log(items);
-          let numberOfHits = 0;
-          //Get existing value if exists
-          if (items[bmrEntryKey]) {
-            const existingValue = items[`${bmrEntryKey}`];
-            console.log(`Existing Value: ${existingValue}`);
-            numberOfHits = existingValue;
+const onNavigationCompleted = details => {
+    if (details.frameId === 0) {
+        //console.log(details.url);
+        // chrome.bookmarks.getTree(function(tree){
+        //     console.log(tree);
+        // });
+        chrome.bookmarks.search({ url: details.url }, function(results) {
+          if (results === undefined || results.length == 0) {
+            console.log("No URL hits.");
+            return;
           }
-
-          //Set into storage
-          numberOfHits++;
-          let tracker = { [bmrEntryKey]: numberOfHits };
-          console.log(tracker);
-          chrome.storage.sync.set(tracker);
-          console.log(
-            `Bookmark Hit and stored for - ${element.title}:${
-              element.url
-            }. Hash: ${element.url.hashCode()}. Total hits: ${numberOfHits}`
-          );
+    
+          results.forEach(function(bookmarkEntry) {
+            const bmrEntryKey = `bmr-${bookmarkEntry.url.hashCode()}`;
+            chrome.storage.sync.get([`${bmrEntryKey}`], items => {
+              let numberOfHits = 0;
+              //Get existing value if exists
+              if (items[bmrEntryKey]) {
+                const existingValue = items[`${bmrEntryKey}`];
+                console.log(`Existing Value: ${existingValue}`);
+                numberOfHits = existingValue;
+              }
+    
+              //Set into storage
+              numberOfHits++;
+              let tracker = { [bmrEntryKey]: numberOfHits };
+              chrome.storage.sync.set(tracker);
+              console.log(
+                `Bookmark Hit and stored for - ${bookmarkEntry.title}:${
+                  bookmarkEntry.url
+                }. Hash: ${bookmarkEntry.url.hashCode()}. Total hits: ${numberOfHits}`
+              );
+    
+              //Get Parent
+              //Get siblings
+              //chrome.bookmarks.getChildren(bookmarkEntry.parentId,function(siblingResults));
+              //Re-Order self and siblings in folder
+            });
+          });
         });
-      });
-    });
-  }
-});
+      }
+}
+
+chrome.webNavigation.onCompleted.addListener(onNavigationCompleted);
