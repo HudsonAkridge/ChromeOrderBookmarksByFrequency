@@ -11,46 +11,46 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
-const onNavigationCompleted = details => {
+const onNavigationCompleted = async details => {
     if (details.frameId === 0) {
         //console.log(details.url);
         // chrome.bookmarks.getTree(function(tree){
         //     console.log(tree);
         // });
-        chrome.bookmarks.search({ url: details.url }, function(results) {
-          if (results === undefined || results.length == 0) {
+        let results = await chrome.bookmarks.search({ url: details.url });
+        if (results === undefined || results.length == 0) {
             console.log("No URL hits.");
             return;
           }
     
-          results.forEach(function(bookmarkEntry) {
+          results.forEach(async function(bookmarkEntry) {
             const bmrEntryKey = `bmr-${bookmarkEntry.url.hashCode()}`;
-            chrome.storage.sync.get([`${bmrEntryKey}`], items => {
-              let numberOfHits = 0;
-              //Get existing value if exists
-              if (items[bmrEntryKey]) {
-                const existingValue = items[`${bmrEntryKey}`];
-                console.log(`Existing Value: ${existingValue}`);
-                numberOfHits = existingValue;
-              }
-    
-              //Set into storage
-              numberOfHits++;
-              let tracker = { [bmrEntryKey]: numberOfHits };
-              chrome.storage.sync.set(tracker);
-              console.log(
-                `Bookmark Hit and stored for - ${bookmarkEntry.title}:${
-                  bookmarkEntry.url
-                }. Hash: ${bookmarkEntry.url.hashCode()}. Total hits: ${numberOfHits}`
-              );
-    
-              //Get Parent
-              //Get siblings
-              //chrome.bookmarks.getChildren(bookmarkEntry.parentId,function(siblingResults));
-              //Re-Order self and siblings in folder
-            });
+            let items = await chrome.storage.sync.get([`${bmrEntryKey}`]);
+            
+            let numberOfHits = 0;
+            //Get existing value if exists
+            if (items[bmrEntryKey]) {
+              const existingValue = items[`${bmrEntryKey}`];
+              console.log(`Existing Value: ${existingValue}`);
+              numberOfHits = existingValue;
+            }
+  
+            //Set into storage
+            numberOfHits++;
+            let tracker = { [bmrEntryKey]: numberOfHits };
+            await chrome.storage.sync.set(tracker);
+            console.log(
+              `Bookmark Hit and stored for - ${bookmarkEntry.title}:${
+                bookmarkEntry.url
+              }. Hash: ${bookmarkEntry.url.hashCode()}. Total hits: ${numberOfHits}`
+            );
+  
+            //Get Parent
+            //Get siblings
+            let siblingResults = await chrome.bookmarks.getChildren(bookmarkEntry.parentId);
+            console.log(siblingResults);
+            //Re-Order self and siblings in folder
           });
-        });
       }
 }
 
