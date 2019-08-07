@@ -20,11 +20,12 @@ const convertUrlToKey = url => {
   return `${keyPrefix}${url.hashCode()}`;
 };
 
-const incrementStoredBookmarkEntry = async url => {
-  const bmrEntryKey = `${convertUrlToKey(url)}`;
-  let items = await chrome.storage.sync.get([`${bmrEntryKey}`]);
+const incrementStoredBookmarkEntry = async bookmarkEntry => {
+  const bmrEntryKey = `${convertUrlToKey(bookmarkEntry.url)}`;
+  bookmarkEntry.bmrKey = bmrEntryKey;
+  let items = await chrome.storage.local.get([`${bmrEntryKey}`]);
 
-  let numberOfHits = 0;
+  let numberOfHits = 1; //Had to hit it at least once to bookmark it
   //Get existing value if exists
   if (items[bmrEntryKey]) {
     const existingValue = items[`${bmrEntryKey}`];
@@ -35,7 +36,27 @@ const incrementStoredBookmarkEntry = async url => {
   //Set into storage
   numberOfHits++;
   let tracker = { [bmrEntryKey]: numberOfHits };
-  await chrome.storage.sync.set(tracker);
+  await chrome.storage.local.set(tracker);
+  bookmarkEntry.weight = numberOfHits;
+};
+
+const compareBookmarkByWeightThenIndex = (a, b) => {
+  //   console.log(`${a.title}: weight ${a.weight}, ${b.title}: weight ${b.weight}`);
+  if (Number(a.weight) > Number(b.weight)) {
+    // console.log(`${a.title}: sorted before ${b.title}`);
+    return -1;
+  }
+  if (Number(a.weight) < Number(b.weight)) {
+    // console.log(`${a.title}: sorted after ${b.title}`);
+    return 1;
+  }
+
+  if (Number(a.weight) == Number(b.weight)) {
+    if (Number(a.index) < Number(b.index)) return -1;
+    if (Number(a.index) > Number(b.index)) return 1;
+  }
+
+  return 0;
 };
 
 const onNavigationCompleted = async details => {
@@ -43,10 +64,6 @@ const onNavigationCompleted = async details => {
     return;
   }
 
-  //console.log(details.url);
-  // chrome.bookmarks.getTree(function(tree){
-  //     console.log(tree);
-  // });
   let results = await chrome.bookmarks.search({ url: details.url });
   if (results === undefined || results.length == 0) {
     console.log("No URL hits.");
@@ -54,46 +71,44 @@ const onNavigationCompleted = async details => {
   }
 
   results.forEach(async function(bookmarkEntry) {
-    await incrementStoredBookmarkEntry(bookmarkEntry.url);
+    await incrementStoredBookmarkEntry(bookmarkEntry);
 
     console.log(
-      `Bookmark Hit and stored for - ${bookmarkEntry.title}:${
-        bookmarkEntry.url
-      }. Hash: ${bookmarkEntry.url.hashCode()}.`
+      `Bookmark Hit and stored for - ${bookmarkEntry.title}:${bookmarkEntry.url}. Hash: ${bookmarkEntry.url.hashCode()}. Weight: ${
+        bookmarkEntry.weight
+      }. Key: ${bookmarkEntry.bmrKey}.`
     );
 
     //Get siblings
     let siblingResults = await chrome.bookmarks.getChildren(bookmarkEntry.parentId);
     //Add Bookmark Ranks to each sibling found
-    siblingResults.forEach(async sibling => {
-      let siblingKeyQuery = `${convertUrlToKey(sibling.url)}`;
+    for (i = 0; i < siblingResults.length; i++) {
+      let sibling = siblingResults[i];
+
+      let siblingBmrKey = convertUrlToKey(sibling.url);
+      let siblingKeyQuery = `${siblingBmrKey}`;
       sibling.bmrKey = siblingKeyQuery;
 
-      let siblingBmrEntry = await chrome.storage.sync.get(siblingKeyQuery);
-      let entryWeight = siblingBmrEntry[convertUrlToKey(sibling.url)] || 1;
+      let siblingBmrEntry = await chrome.storage.local.get(siblingKeyQuery);
+      let entryWeight = siblingBmrEntry[siblingBmrKey] || 1;
       sibling.weight = entryWeight;
-    });
-    console.log(siblingResults);
+    }
 
-    // let siblingKeyQuery = siblingResults.map(x => `${convertUrlToKey(x.url)}`);
-    // let siblingBmrEntries = await chrome.storage.sync.get(siblingKeyQuery);
-    // console.log(siblingBmrEntries);
-    // //go through each one and see if it's a url or a folder
-    // siblingResults.forEach(sibling => {
-    //   //if folder, skip
-    //   if (!sibling.url) {
-    //     return;
-    //   }
-    //   //if URL, check its weight value in the storage, defaulting to 1 if not found (had to hit it once to set the bookmark...right?)
-    //   let entryWeight = siblingBmrEntries[convertUrlToKey(sibling.url)] || 1;
-    //   console.log(entryWeight);
-    //   //map to URL/index mapping
-    //   //If self, skip, this is special condition
-    //   //Compare and swap places with a higher index bookmark that's got fewer hits after the change.
-    // });
-
-    //Re-Order self and siblings in folder
+    await recursiveSortBookmarks(siblingResults);
   });
+};
+
+const recursiveSortBookmarks = async bookmarksInCurrentFolder => {
+  var sortedBookmarks = bookmarksInCurrentFolder.sort(compareBookmarkByWeightThenIndex);
+  console.log(sortedBookmarks);
+
+  for (var i = 0; i < sortedBookmarks.length; i++) {
+    let bookmark = sortedBookmarks[i];
+    let oldIndex = bookmark.index;
+    if (bookmark.index == i) return;
+    await chrome.bookmarks.move(bookmark.id, { index: i });
+    console.log(`Moved bookmark: ${bookmark.title}. From index ${oldIndex} to ${i}.`);
+  }
 };
 
 chrome.webNavigation.onCompleted.addListener(onNavigationCompleted);
