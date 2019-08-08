@@ -1,7 +1,14 @@
 {
     "manifest_version": 2,
-    "name": "Order Bookmarks By Frequency",
+    "name": "Bookmarks by frequency",
     "version": "0.1",
+    "default_locale": "en",
+    "description": "Order your bookmarks and folders by the frequency of use.",
+    "icons": {
+      "16": "cbr_16.png",
+      "48": "cbr_48.png",
+      "128": "cbr_128.png"
+    },
     "permissions": [
         "bookmarks",
         "tabs",
