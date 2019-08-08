@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
@@ -17,7 +18,50 @@
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="CustomStarIcon.svg">
   <defs
-     id="defs3736" />
+     id="defs3736">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient851">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop847" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop849" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient843">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop839" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop841" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient843"
+       id="linearGradient845"
+       x1="-9.5922348"
+       y1="269.97134"
+       x2="26.961105"
+       y2="269.97134"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient851"
+       id="linearGradient853"
+       x1="-9.5922348"
+       y1="269.97134"
+       x2="26.961105"
+       y2="269.97134"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,9 +69,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="10.0712"
-     inkscape:cx="77.257853"
-     inkscape:cy="78.115717"
+     inkscape:zoom="1.2589"
+     inkscape:cx="64.063603"
+     inkscape:cy="102.37576"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -45,7 +89,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -69,7 +113,7 @@
        inkscape:randomized="0"
        d="m 8.6844354,287.35349 -5.6478024,-11.4437 -12.6288678,-1.83508 9.13833489,-8.90767 -2.15726879,-12.57784 11.295604,5.93845 11.2956027,-5.93845 -2.157268,12.57784 9.138335,8.90767 -12.628869,1.83508 z"
        inkscape:transform-center-y="-1.1441253"
-       style="opacity:0.25;fill:#ffcc00;stroke-width:0.26458332"
+       style="opacity:0.25;fill:#ffcc00;stroke-width:0.26458332;stroke:url(#linearGradient853)"
        transform="matrix(0.59295995,0,0,-0.62347498,4.7568686,441.20798)" />
     <path
        sodipodi:type="star"
@@ -86,7 +130,7 @@
        inkscape:randomized="0"
        d="m 8.6844354,287.35349 -5.6478024,-11.4437 -12.6288678,-1.83508 9.13833489,-8.90767 -2.15726879,-12.57784 11.295604,5.93845 11.2956027,-5.93845 -2.157268,12.57784 9.138335,8.90767 -12.628869,1.83508 z"
        inkscape:transform-center-y="-1.4301596"
-       style="opacity:0.5;fill:#ffcc00;stroke-width:0.26458332"
+       style="opacity:0.5;fill:#ffcc00;stroke-width:0.26458332;stroke:url(#linearGradient845)"
        transform="matrix(0.74119994,0,0,-0.77934374,7.0210505,486.43069)" />
     <path
        sodipodi:type="star"
@@ -103,7 +147,7 @@
        inkscape:randomized="0"
        d="m 8.6844354,287.35349 -5.6478024,-11.4437 -12.6288678,-1.83508 9.13833489,-8.90767 -2.15726879,-12.57784 11.295604,5.93845 11.2956027,-5.93845 -2.157268,12.57784 9.138335,8.90767 -12.628869,1.83508 z"
        inkscape:transform-center-y="-1.7877007"
-       style="stroke-width:0.26458332;fill:#ffcc00"
+       style="stroke-width:0.26458332;fill:#ffcc00;fill-opacity:1;stroke:#000000;stroke-opacity:1"
        transform="matrix(0.92649993,0,0,-0.97417967,8.8872049,543.06725)" />
   </g>
 </svg>

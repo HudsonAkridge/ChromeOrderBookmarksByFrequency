@@ -1,0 +1,10 @@
+{
+    "appName": {
+      "message": "Bookmarks by frequency",
+      "description": "Order your bookmarks and folders by the frequency of use."
+    },
+    "appDesc": {
+      "message": "This will order your bookmarks by the frequency that you visit the site.", 
+      "description":"More frequently visited bookmarks will appear higher in your list of bookmarks in Chrome.\n\rA couple caveats: 1.) You must actually load the page for it to register a visit 2.) This will not go through your history, so this will only work going forward 3.) This is per Chrome install, and not currently synced to your account so you'll lose the ordering/ranking when you swap chrome accounts 4.) There's an ongoing list of issues, but the source for that is here: https://github.com/HudsonAkridge/ChromeOrderBookmarksByFrequency if you want to track the progress or add your own.\n\rThank you!"
+    }
+  }
