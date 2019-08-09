@@ -1,5 +1,5 @@
 String.prototype.hashCode = function() {
-  var hash = 0,
+  let hash = 0,
     i,
     chr;
   if (this.length === 0) return hash;

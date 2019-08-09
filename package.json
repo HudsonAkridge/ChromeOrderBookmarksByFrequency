@@ -1,0 +1,28 @@
+{
+  "name": "chromebookmarkreorderer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HudsonAkridge/ChromeOrderBookmarksByFrequency.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HudsonAkridge/ChromeOrderBookmarksByFrequency/issues"
+  },
+  "homepage": "https://github.com/HudsonAkridge/ChromeOrderBookmarksByFrequency#readme",
+  "devDependencies": {
+    "eslint": "^6.1.0"
+  },
+  "dependencies": {
+    "eslint-config-standard": "^13.0.1"
+  }
+}
