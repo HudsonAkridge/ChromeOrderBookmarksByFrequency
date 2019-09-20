@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bookmarks by frequency</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+
+<span>
+  <p>How do you want to save your user data?</p>
+  <p>
+<select id="storageType">
+ <option value="sync" selected="selected">Synchronize to other Browsers (default)</option>
+ <option value="local">Local to this browser</option>
+</select>
+</p>
+</span>
+<span>
+  <p>
+How do you want to order your bookmarks?</p>
+<p>
+<select id="orderType">
+ <option value="frequency" selected="selected">By Frequency of use (default)</option>
+ <option value="lastAccessed">By Last Accessed</option>
+</select>
+</p></span>
+<!-- 
+<label>
+  <input type="checkbox" id="like">
+  I like colors.
+</label> -->
+
+<div id="status" class="save-results"></div>
+<p></p>
+<button id="save">Save</button>
+
+<script src="options.js"></script>
+</body>
+</html>

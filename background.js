@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 String.prototype.hashCode = function() {
   let hash = 0,
     i,
