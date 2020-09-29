@@ -12,7 +12,7 @@
   },
   "permissions": ["bookmarks", "tabs", "webNavigation", "storage"],
   "background": {
-    "scripts": ["lib/chrome-extension-async.js", "background.js"],
+    "scripts": ["lib/chrome-extension-async.js", "lib/browser-polyfill.min.js",  "background.js"],
     "persistent": false
   },
   "options_ui": {

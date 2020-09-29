@@ -1,3 +1,8 @@
 .save-results{
     color: brown
 }
+
+.reset-extension-button{
+    color:white;
+    background: red;
+}
