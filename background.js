@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-String.prototype.hashCode = function() {
+String.prototype.hashCode = function () {
   let hash = 0,
     i,
     chr;
@@ -13,7 +13,7 @@ String.prototype.hashCode = function() {
 };
 
 const keyPrefix = "bmr_";
-const convertUrlToKey = url => {
+const convertUrlToKey = (url) => {
   if (!url) {
     return null;
   }
@@ -21,12 +21,11 @@ const convertUrlToKey = url => {
   return `${keyPrefix}${url.hashCode()}`;
 };
 
-const incrementStoredBookmarkEntry = async bookmarkEntry => {
-  const bmrEntryKey = `${convertUrlToKey(bookmarkEntry.url)}`;
-  bookmarkEntry.bmrKey = bmrEntryKey;
-  let items = await chrome.storage.local.get([`${bmrEntryKey}`]);
+const getBookmarkAnalytics = async (bookmarkEntry) => {
+  let bmrEntryKey = `${convertUrlToKey(bookmarkEntry.url)}`;
+  let items = await browser.storage.local.get([`${bmrEntryKey}`]);
 
-  let numberOfHits = 1; //Had to hit it at least once to bookmark it
+  let numberOfHits = 0;
   //Get existing value if exists
   if (items[bmrEntryKey]) {
     const existingValue = items[`${bmrEntryKey}`];
@@ -37,12 +36,12 @@ const incrementStoredBookmarkEntry = async bookmarkEntry => {
   //Set into storage
   numberOfHits++;
   let tracker = { [bmrEntryKey]: numberOfHits };
-  await chrome.storage.local.set(tracker);
-  bookmarkEntry.weight = numberOfHits;
+  await browser.storage.local.set(tracker);
+  return { bmrKey: bmrEntryKey, weight: numberOfHits };
 };
 
 const compareBookmarkByWeightThenIndex = (a, b) => {
-  //   console.log(`${a.title}: weight ${a.weight}, ${b.title}: weight ${b.weight}`);
+    // console.log(`${a.title}: weight ${a.weight}, ${b.title}: weight ${b.weight}`);
   if (Number(a.weight) > Number(b.weight)) {
     // console.log(`${a.title}: sorted before ${b.title}`);
     return -1;
@@ -60,7 +59,7 @@ const compareBookmarkByWeightThenIndex = (a, b) => {
   return 0;
 };
 
-const onNavigationCompleted = async details => {
+const onNavigationCompleted = async (details) => {
   if (details.frameId !== 0) {
     return;
   }
@@ -71,27 +70,27 @@ const onNavigationCompleted = async details => {
     return;
   }
 
-  results.forEach(async function(bookmarkEntry) {
+  results.forEach(async function (bookmarkEntry) {
     if (!bookmarkEntry.parentId) {
       //Root
       return;
     }
-    await incrementStoredBookmarkEntry(bookmarkEntry);
+    let hitBookmarkResult = await getBookmarkAnalytics(bookmarkEntry);
 
     console.log(
       `Bookmark Hit and stored for - ${bookmarkEntry.title}:${bookmarkEntry.url}. Hash: ${bookmarkEntry.url.hashCode()}. Weight: ${
-        bookmarkEntry.weight
-      }. Key: ${bookmarkEntry.bmrKey}.`
+        hitBookmarkResult.weight
+      }. Key: ${hitBookmarkResult.bmrKey}.`
     );
 
     //Re-Order whole tree
     let bookmarkTree = await chrome.bookmarks.getTree();
     let rootId = bookmarkTree[0].id;
-    await recursiveWeightBookmarks(bookmarkTree[0].children, rootId);
+    await recursiveWeightBookmarks(bookmarkTree[0].children, rootId, hitBookmarkResult);
   });
 };
 
-const recursiveWeightBookmarks = async (bookmarksInCurrentFolder, rootId) => {
+const recursiveWeightBookmarks = async (bookmarksInCurrentFolder, rootId, hitBookmarkResult) => {
   let totalCountInFolder = 0;
   //Add Bookmark Ranks to each sibling found
   for (let i = 0; i < bookmarksInCurrentFolder.length; i++) {
@@ -111,13 +110,20 @@ const recursiveWeightBookmarks = async (bookmarksInCurrentFolder, rootId) => {
       let folderResults = current.children;
       if (folderResults && folderResults.length > 0) {
         //console.log(folderResults);
-        let subFolderWeight = (await recursiveWeightBookmarks(folderResults)) || 0;
+        let subFolderWeight = (await recursiveWeightBookmarks(folderResults, rootId, hitBookmarkResult)) || 0;
         //console.log(subFolderWeight);
         current.weight = subFolderWeight;
       }
     } else {
-      let currentBmrEntry = await chrome.storage.local.get(currentKeyQuery);
-      let entryWeight = currentBmrEntry[currentBmrKey] || 1;
+      let entryWeight = 0;
+      if (current.bmrKey === hitBookmarkResult.bmrKey) {
+        //console.log(`Matched our bmrKey. Weight ${hitBookmarkResult.weight}`);
+        entryWeight = hitBookmarkResult.weight;
+      } else {
+        let currentBmrEntry = await chrome.storage.local.get(currentKeyQuery);
+        entryWeight = currentBmrEntry[currentBmrKey] || 0;
+        //console.log(`No match with our bmrKey for ${currentKeyQuery} Weight ${entryWeight}`);
+      }
       current.weight = entryWeight;
       totalCountInFolder += entryWeight;
     }
@@ -126,14 +132,15 @@ const recursiveWeightBookmarks = async (bookmarksInCurrentFolder, rootId) => {
   return totalCountInFolder;
 };
 
-const sortBookmarksWithinFolder = async bookmarksInCurrentFolder => {
+const sortBookmarksWithinFolder = async (bookmarksInCurrentFolder) => {
   let sortedBookmarks = bookmarksInCurrentFolder.sort(compareBookmarkByWeightThenIndex);
-  //console.log(sortedBookmarks);
+  console.log(sortedBookmarks);
 
   for (let i = 0; i < sortedBookmarks.length; i++) {
     let bookmark = sortedBookmarks[i];
     let oldIndex = bookmark.index;
-    if (bookmark.index == i) return;
+    console.log(`OldIndex: ${oldIndex}, NewIndex:${i}. Title:${bookmark.title}`)
+    if (bookmark.index == i) continue;
     await chrome.bookmarks.move(bookmark.id, { index: i });
     console.log(`Moved bookmark: ${bookmark.title}. From index ${oldIndex} to ${i}.`);
   }

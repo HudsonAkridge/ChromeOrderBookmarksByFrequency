@@ -20,10 +20,7 @@ function displayMessage(message) {
   }, 2000);
 }
 
-// Restores select box and checkbox state using the preferences
-// stored in chrome.storage.
 async function restore_options() {
-  // Use default value color = 'red' and likesColor = true.
   let items = await browser.storage.sync.get({
     storageType: "sync",
     orderType: "frequency",
@@ -40,4 +37,4 @@ async function clear_storage() {
 
 document.addEventListener("DOMContentLoaded", restore_options);
 document.getElementById("save").addEventListener("click", save_options);
-document.getElementById("clearStorage").addEventListener("click", clear_storage);
+// document.getElementById("clearStorage").addEventListener("click", clear_storage);
